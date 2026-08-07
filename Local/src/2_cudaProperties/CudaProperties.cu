@@ -93,7 +93,7 @@ int main() {
     // and the number of SMs per GPU
     int multiProcessorCount = prop.multiProcessorCount;
 
-    // TODO: Modify the code to compute the number of SPs/SM based on the compute capability of your GPU ((if you are on the suggested queue, you have A100 GPU)
+    // TODO: Modify the code to compute the number of SPs/SM based on the compute capability of your GPU
     // I intentionally hardcoded the number of SPs/SM here
     // Look at the cuda samples from https://github.com/NVIDIA/cuda-samples/blob/master/Common/helper_cuda.h
     // convert from minor and major version to the number of cores per SM

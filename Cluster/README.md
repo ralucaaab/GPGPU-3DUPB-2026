@@ -13,9 +13,9 @@ I highly recommend you to also read more about the cluster environment and how t
 #### Instructions
 
 1. Connect to the cluster using SSH. You can use the following command in your terminal:
-Pass keep alive interval to avoid disconnection due to inactivity. You can also use the `-X` option to enable X11 forwarding if you need to run graphical applications.
+
 ```bash
-ssh -X -o ServerAliveInterval=100 user.name@fep.grid.pub.ro 
+ssh moodle_username@fep.grid.pub.ro
 ```
 
 2. Inspect the resources available on the cluster using the `sinfo` command:
