@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 
 #include <cuda.h>
 #include <cuda_runtime.h>
@@ -8,14 +9,18 @@
 #define KERNEL_OPS_COUNT    (2 * OPS_SCALE)
 
 __global__ void kernel_gflops(float* a, float* b) {
-	int idx = threadIdx.x;
-
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
+  
+  if (idx >= OPS_SCALE * OPS_SCALE) {
+    return;
+  }
+  
     a[idx] = b[idx]; // 1 LOAD + 1 STORE, 0 FP32 ops, 0 FP64 ops
 
     /**
      * ~TODO~
      * Measure FP32 GFlops and FP64 Gflops of the device
-	 * Try and achieve close to theoretical peak performance
+   * Try and achieve close to theoretical peak performance
      */
 
     float x = a[idx]; // 1 LOAD, 0 FP32 ops, 0 FP64 ops
@@ -25,6 +30,9 @@ __global__ void kernel_gflops(float* a, float* b) {
     for (int i = 0; i < OPS_SCALE; i++) {
         x = x * x + x; // 2 FP32 ops, 0 FP64 ops
     }
+    
+    a[idx] = x;
+
     // double y = (double) x;
     // FP64: 2 op per iteration
     // for (int i = 0; i < OPS_SCALE; i++) {
@@ -73,12 +81,17 @@ int main(void) {
 
     if (host_a == 0 || host_b == 0 || device_a == 0 || device_b == 0) {
         printf("[HOST] Couldn't allocate memory\n");
-    	return 1;
+      return 1;
     }
 
     cudaError_t err;
     // Populate array a randomly
     fill_array_random(host_a, size);
+    fill_array_random(host_b, size);
+    
+    err = cudaMemcpy(device_b, host_b, size * sizeof(float), cudaMemcpyHostToDevice);
+    cudaCheckError(err);
+
     err = cudaMemcpy(device_a, host_a, size * sizeof(float), cudaMemcpyHostToDevice);
     cudaCheckError(err);
 
@@ -90,7 +103,7 @@ int main(void) {
     cudaCheckError(err);
 
     dim3 blockSize(512);
-    dim3 blockCount(size + blockSize.x - 1 / blockSize.x);
+    dim3 blockCount((size + blockSize.x - 1) / blockSize.x);
     // Launch kernel
     err = cudaEventRecord(start, 0);
     cudaCheckError(err);
@@ -125,4 +138,3 @@ int main(void) {
 
     return 0;
 }
-
