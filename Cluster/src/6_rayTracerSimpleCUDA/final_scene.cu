@@ -1,8 +1,8 @@
 /* Main file to Ray Trace a scene with multiple spheres
  * TODO. Answer the following questions:
- * How many kernels are we launching? How many blocks and threads per each kernel?
- * Why do we need to run kernels with only 1 thread?
- * Which kernel is the most expensive one? Why?
+ * How many kernels are we launching? How many blocks and threads per each kernel? - 4 kernels
+ * Why do we need to run kernels with only 1 thread? - evitam race conditions
+ * Which kernel is the most expensive one? Why? - render 
 */
 
 #include "header.cuh"
@@ -154,13 +154,23 @@ int main(void) {
     /* TODO:
      * 1. Double the number of samples per pixel. Recompile, rerun, and compare the rendering
      *    time printed below to the initial value. Is the increase approximately 2x? Why/why not?
+     * gpu baza: 2286.391602 ms
+     * gpu timp dublat (ns=20): 1857.108521 ms
+     * raspuns: timpul nu s-a dublat, chiar a scazut. nu e 2x din cauza de gpu warm-up. la prima rulare se pierde mult timp cu initializarea contextului. randarea in sine dureaza super putin, iar placa duce munca dubla instant pt ca are mii de nuclee libere.
+     *
      * 2. Reset the number of samples per pixel and do the same with the resolution.
      *    Is the increase linear with pixel count, or more pronounced? Why, given the block/thread
      *    launch configuration below and the GPU's number of SMs/cores?
+     * gpu rezolutie dublata (nx=1024, ny=1024): 2217.893555 ms
+     * gpu toate dublate: 2159.652832 ms
+     * raspuns: timpul e iar mascat de acelasi warm-up, ramanand pe la 2 secunde. teoretic ar trebui sa creasca de 4x (patratic) pt ca dubland latimea se dubleaza si inaltimea. raportat la nr total de pixeli cresterea e liniara (1 thread = 1 pixel), gpu-ul impartind blocurile de thread-uri pe nucleele SM disponibile.
      */
-    int nx = 512;
-    int ny = 512;
-    int ns = 10;
+    //int nx = 512;
+    //int ny = 512;
+    int nx = 1024;
+    int ny = 1024;
+    //int ns = 10;
+    int ns = 20;
 
     int num_pixels = nx * ny;
 
@@ -225,7 +235,15 @@ int main(void) {
     /* TODO:
      * miliseconds is the time it took to render the scene. How does this compare to the time it took to render the same scene on your CPU?
      * Record the time and compute the speedup factor. How does this compare to the number of cores on your GPU?
+     * 
+     * raspuns:
+     * cpu timp (512x512, ns=10): 223879 ms
+     * gpu timp (512x512, ns=10): 2286.391602 ms
+     * accelerare (speedup): 223879 / 2286.39 = 97.9x
+     * diferenta e mare pentru ca procesorul face totul secvential (pe un singur thread), pe cand gpu arunca toata treaba pe miile de nuclee CUDA care calculeaza toti pixelii in paralel.
      */
+
+
 	printf("Time spent rendering: %f ms\n", milliseconds);
 
     color *fb_cpu = (color*)malloc(num_pixels * sizeof(color));

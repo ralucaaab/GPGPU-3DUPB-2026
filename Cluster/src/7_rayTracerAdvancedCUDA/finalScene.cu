@@ -91,6 +91,10 @@ __global__ void allocateWorld(hittable **d_list, hittable **d_world, camera **d_
         //  out of device (video) memory via cudaLimitStackSize, so deeper recursion
         //  across thousands of threads can visibly grow memory usage, and eventually overflow.
         int boxes_per_side = 4;
+        // int boxes_per_side = 8;
+        // int boxes_per_side = 16;
+        // int boxes_per_side = 32;
+        // int boxes_per_side = 64;
 
         hittable **boxes = new hittable*[boxes_per_side * boxes_per_side];
         int cnt = 0;

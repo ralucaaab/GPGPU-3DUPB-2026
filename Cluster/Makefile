@@ -2,7 +2,8 @@ NVCC ?= nvcc
 GPP ?= g++
 # TODO: Check the GPU used by the queue which you use on the cluster. (A100 if you use the demo one, dgxa100)
 # Modify the CUDA_ARCH variable to match your GPU architecture. You can check your GPU architecture at https://developer.nvidia.com/cuda/gpus and set the appropriate value.
-CUDA_ARCH ?= sm_120
+# CUDA_ARCH ?= sm_120
+CUDA_ARCH ?= sm_75
 NVCCFLAGS ?= -O2 -std=c++17 -arch=$(CUDA_ARCH)
 CXXFLAGS ?= -O2 -std=c++17
 
